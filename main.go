@@ -24,7 +24,22 @@ func getEmployeeHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	empID, err := strconv.Atoi(r.URL.Path[len("/employee/"):])
+
+	enc := json.NewEncoder(w)
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.URL.Path == "/api/v1/employees/" || r.URL.Path == "/api/v1/employees" {
+		log.Println("getting all employees")
+		err := enc.Encode(inMemDB.Employees)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	empID, err := strconv.Atoi(r.URL.Path[len("/api/v1/employees/"):])
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -32,9 +47,7 @@ func getEmployeeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("getting employee data for employee id : %d \n", empID)
-	w.Header().Set("Content-Type", "application/json")
 
-	enc := json.NewEncoder(w)
 	err = enc.Encode(inMemDB.Employees[empID])
 	if err != nil {
 		log.Println(err)
@@ -53,7 +66,7 @@ func main() {
 	inMemDB = InMemData{Employees: employees}
 
 	//http handler registration
-	http.HandleFunc("/employee/", getEmployeeHandler)
+	http.HandleFunc("/api/v1/employees/", getEmployeeHandler)
 
 	//start the server
 	log.Fatal(http.ListenAndServe(":8080", nil))
