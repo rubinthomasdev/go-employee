@@ -1,0 +1,24 @@
+version: "3.9"
+services: 
+    # employeeapi:
+    #     restart: always
+    #     build: .
+    #     ports: 
+    #         - "8080:8080"
+    #     depends_on: 
+    #         - postgres
+    #     environment: 
+    #         PG_HOST: postgres
+    #         PG_PORT: 5432
+    #         PG_USER: postgres
+    #         PG_PASSWORD: testpwd
+    #         PG_DBNAME: postgres
+    postgres:
+        image: postgres:13.3-alpine
+        restart: always
+        ports: 
+            - "5432:5432"
+        volumes: 
+            - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+        environment: 
+            POSTGRES_PASSWORD: testpwd
